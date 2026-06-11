@@ -1,0 +1,51 @@
+# One command to run the whole stack:  docker compose up --build
+#
+# Services:
+#   db        Postgres 16 (the recommended-stack database)
+#   backend   FastAPI app (auto-creates tables + seeds the 5 lenders on first boot)
+#   frontend  Vite dev server, proxying /api -> backend
+#
+# Prefer to run the apps on the host? Start just Postgres:
+#   docker compose up db
+# ...then follow the "Local (no Docker for the apps)" path in the README.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: kaaj
+      POSTGRES_PASSWORD: kaaj
+      POSTGRES_DB: kaaj
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaaj -d kaaj"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://kaaj:kaaj@db:5432/kaaj
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      # Vite proxies /api to this target inside the compose network.
+      VITE_API_TARGET: http://backend:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

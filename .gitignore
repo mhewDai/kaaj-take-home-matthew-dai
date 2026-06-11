@@ -1,0 +1,31 @@
+# Python
+backend/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Local databases
+*.db
+*.sqlite3
+
+# Env
+.env
+.env.local
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Redundant with the extracted documents/ folder
+documents.zip
+
+# Local tooling config (kept off the public repo)
+.claude/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.log
